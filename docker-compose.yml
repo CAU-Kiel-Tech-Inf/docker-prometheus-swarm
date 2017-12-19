@@ -29,14 +29,18 @@ services:
     networks:
       - monitoring
     volumes:
-      - /proc:/host/proc
-      - /sys:/host/sys
-      - /:/rootfs
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
       - /etc/hostname:/etc/host_hostname
     hostname: "{{.Node.ID}}"
     environment:
       HOST_HOSTNAME: /etc/host_hostname
-    command: -collector.procfs "/host/proc" -collector.sysfs /host/sys -collector.textfile.directory /etc/node-exporter/ -collectors.enabled 'conntrack,diskstats,entropy,filefd,filesystem,loadavg,mdadm,meminfo,netdev,netstat,stat,textfile,time,vmstat,ipvs' -collector.filesystem.ignored-mount-points "^/(sys|proc|dev|host|etc)($$|/)"
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.textfile.directory=/etc/node-exporter/'
+      - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
     deploy:
       mode: global
       resources:
